@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Spiritual AI — Krishna</title>
-  <link rel="preload" href="./krishna-repaired.glb" as="fetch" crossorigin>
+  <link rel="preload" href="./krishna-repaired.glb" as="fetch" crossorigin fetchpriority="high">
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; overflow: hidden; background: transparent !important; }
@@ -46,7 +46,6 @@
     import { KTX2Loader } from 'three/addons/loaders/KTX2Loader.js';
     import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
     import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-    import { Room, RoomEvent, createLocalAudioTrack } from 'https://cdn.jsdelivr.net/npm/livekit-client@2.21.0/+esm';
 
     const legacy = new URLSearchParams(location.search).has('legacy');
     const camera = legacy ? new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 1, 20)
@@ -363,6 +362,7 @@
       if (liveRoom?.state === 'connected') return;
       if (liveStartPromise) return liveStartPromise;
       liveStartPromise = (async () => {
+        const { Room, RoomEvent, createLocalAudioTrack } = await import('https://cdn.jsdelivr.net/npm/livekit-client@2.21.0/+esm');
         voiceLabel.textContent = 'Connecting to Spiritual AI…';
         // A previous intro/text response may have left an external level of
         // zero. LiveKit speech must use its own analyser instead.
