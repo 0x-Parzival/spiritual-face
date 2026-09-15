@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Spiritual AI — Krishna</title>
-  <link rel="preload" href="./krishna-repaired.glb" as="fetch" crossorigin fetchpriority="high">
+  <link rel="preload" href="./krishna-light.glb" as="fetch" crossorigin fetchpriority="high">
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; overflow: hidden; background: transparent !important; }
@@ -39,7 +39,6 @@
     import { styleFace } from './appearance.js';
     import { headMotion } from './head-motion.js';
     import { eyeMaterial } from './eye-material.js';
-    import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
     import { EXPRESSIONS, speechCues, expressionPose } from './expressions.mjs';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -687,7 +686,7 @@
     const assetUrl = file => new URL(file, import.meta.url).href;
     const ktx2 = new KTX2Loader().setTranscoderPath(assetUrl('./basis/')).detectSupport(renderer);
     new GLTFLoader().setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder)
-      .load(assetUrl(legacy ? './facecap.glb' : './krishna-repaired.glb'), gltf => {
+      .load(assetUrl(legacy ? './facecap.glb' : './krishna-light.glb'), gltf => {
         face = gltf.scene.children[0];
         if (legacy) {
         face.scale.multiplyScalar(.92);
@@ -703,14 +702,6 @@
             if (node.isMesh && ['Dark brown hair', 'Portrait dark hair strands'].includes(node.material.name)) {
               const name = node.material.name;
               const map = node.material.map;
-              if (!map) {
-                // Untextured hair needs no UV seams; weld only this material.
-                for (const attribute of Object.keys(node.geometry.attributes)) {
-                  if (attribute !== 'position') node.geometry.deleteAttribute(attribute);
-                }
-                node.geometry = mergeVertices(node.geometry, 1e-5);
-                node.geometry.computeVertexNormals();
-              }
               node.material = new THREE.MeshPhysicalMaterial({ map, color: map ? '#ffffff' : '#100e12', roughness: .48, metalness: 0,
                 clearcoat: 0, envMapIntensity: .5 });
               node.material.name = name;
@@ -762,6 +753,49 @@
         eyeTarget = new Float32Array(influences.length);
         microTarget = new Float32Array(influences.length);
         mouthShapes = faceMesh.morphTargetDictionary;
+        // Meshopt quantization can leave microscopic thickness in eye surfaces
+        // that are authored to collapse fully at blink=1. Seal that one axis
+        // after decoding so the lightweight model closes exactly like source.
+        face.traverse(node => {
+          if (!node.isMesh || !node.material.userData.anatomicalEye) return;
+          const position = node.geometry.attributes.position;
+          for (const name of ['eyeBlink_L', 'eyeBlink_R']) {
+            const morph = node.geometry.morphAttributes.position?.[mouthShapes[name]];
+            if (!morph) continue;
+            const ranges = [0, 1, 2].map(axis => {
+              let low = Infinity, high = -Infinity;
+              for (let i = 0; i < position.count; i++) {
+                const value = [position.getX(i), position.getY(i), position.getZ(i)][axis]
+                  + [morph.getX(i), morph.getY(i), morph.getZ(i)][axis];
+                low = Math.min(low, value); high = Math.max(high, value);
+              }
+              return { axis, low, high };
+            });
+            const { axis, low, high } = ranges.sort((a, b) => a.high - a.low - (b.high - b.low))[0];
+            const center = (low + high) / 2;
+            const set = axis === 0 ? 'setX' : axis === 1 ? 'setY' : 'setZ';
+            const get = axis === 0 ? 'getX' : axis === 1 ? 'getY' : 'getZ';
+            for (let i = 0; i < position.count; i++) morph[set](i, center - position[get](i));
+          }
+          const blinks = ['eyeBlink_L', 'eyeBlink_R']
+            .map(name => node.geometry.morphAttributes.position?.[mouthShapes[name]]).filter(Boolean);
+          if (blinks.length === 2) {
+            const ranges = [0, 1, 2].map(axis => {
+              const get = axis === 0 ? 'getX' : axis === 1 ? 'getY' : 'getZ';
+              let low = Infinity, high = -Infinity;
+              for (let i = 0; i < position.count; i++) {
+                const value = position[get](i) + blinks[0][get](i) + blinks[1][get](i);
+                low = Math.min(low, value); high = Math.max(high, value);
+              }
+              return { axis, get, low, high };
+            });
+            const { axis, get, low, high } = ranges.sort((a, b) => a.high - a.low - (b.high - b.low))[0];
+            const set = axis === 0 ? 'setX' : axis === 1 ? 'setY' : 'setZ';
+            const center = (low + high) / 2;
+            for (let i = 0; i < position.count; i++)
+              blinks[0][set](i, center - position[get](i) - blinks[1][get](i));
+          }
+        });
         const selectEmotion = name => {
           emotionTarget.fill(0);
           for (const [shape, value] of Object.entries(emotions[name] || emotions.Neutral)) {
@@ -851,7 +885,7 @@
         if (cuePose) { headTiltTarget = cuePose.tilt; headTiltUntil = time + 100; }
         else if (activeCue) { activeCue = null; applyEmotion?.('Neutral'); }
         influences.forEach((value, index) => {
-          const limit = legacy && (index === mouthShapes.eyeBlink_L || index === mouthShapes.eyeBlink_R) ? 1.3 : 1;
+          const limit = index === mouthShapes.eyeBlink_L || index === mouthShapes.eyeBlink_R ? 1.3 : 1;
           let target = emotionTarget[index] + speechTarget[index] + eyeTarget[index] + (microTarget?.[index] || 0);
           if (cuePose) for (const [shape, amount] of Object.entries(cuePose.shapes)) {
             if (mouthShapes[shape] === index) target = Math.max(target, amount);
