@@ -6,7 +6,8 @@ propagate automatically: copied files become independent snapshots.
 
 For Spiritual AI's deployment:
 It includes the GLB, facial morphs, blink and gaze tracking, head movement, 30+
-expressions, speech lip-sync, orbit/depth controls, and the local Basis decoder.
+four expression cues (blink, laugh, chuckle, sigh), speech lip-sync, orbit/depth
+controls, and the local Basis decoder.
 
 `krishna-light-1024.glb` is the production model: 1K texture, high-precision
 Meshopt geometry and morph compression, approximately 4.6 MB over compressed HTTP.
