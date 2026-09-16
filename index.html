@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Spiritual AI — Krishna</title>
-  <link rel="preload" href="./krishna-light.glb" as="fetch" crossorigin fetchpriority="high">
+  <link rel="preload" href="./facecap.glb" as="fetch" crossorigin fetchpriority="high">
+  <link rel="preload" href="./krishna-light.glb" as="fetch" crossorigin fetchpriority="low">
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; overflow: hidden; background: transparent !important; }
@@ -685,8 +686,30 @@
     document.querySelector('#speak').addEventListener('click', () => speakText(document.querySelector('#speech textarea').value.trim()));
     const assetUrl = file => new URL(file, import.meta.url).href;
     const ktx2 = new KTX2Loader().setTranscoderPath(assetUrl('./basis/')).detectSupport(renderer);
-    new GLTFLoader().setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder)
+    const loader = new GLTFLoader().setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder);
+    let proxyFace;
+    loader.load(assetUrl('./facecap.glb'), gltf => {
+      proxyFace = gltf.scene;
+      proxyFace.scale.multiplyScalar(.92);
+      proxyFace.position.y = .1;
+      proxyFace.traverse(node => {
+        if (!node.isMesh) return;
+        node.material = node.material.clone();
+        node.material.color.set('#58585c');
+        node.material.emissive.set('#58585c');
+        node.material.emissiveIntensity = .1;
+        node.material.roughness = .92;
+        node.material.metalness = 0;
+        node.material.envMapIntensity = .15;
+      });
+      scene.add(proxyFace);
+    });
+    loader
       .load(assetUrl(legacy ? './facecap.glb' : './krishna-light.glb'), gltf => {
+        if (proxyFace) {
+          scene.remove(proxyFace);
+          proxyFace = null;
+        }
         face = gltf.scene.children[0];
         if (legacy) {
         face.scale.multiplyScalar(.92);
