@@ -722,6 +722,10 @@
           scene.environmentIntensity = .65;
           renderer.toneMappingExposure = .8;
           face.traverse(node => {
+            if (node.isMesh && node.material.name === 'Mouth interior') {
+              node.visible = false;
+              return;
+            }
             if (node.isMesh && ['Dark brown hair', 'Portrait dark hair strands'].includes(node.material.name)) {
               const name = node.material.name;
               const map = node.material.map;
