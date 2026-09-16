@@ -39,7 +39,7 @@
     import * as THREE from 'three';
     import { styleFace } from './appearance.js';
     import { headMotion } from './head-motion.js';
-    import { eyeMaterial } from './eye-material.js';
+    import { eyeMaterial } from './eye-material.js?v=bind-frame-1';
     import { EXPRESSIONS, speechCues, expressionPose } from './expressions.mjs';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -689,6 +689,7 @@
     const loader = new GLTFLoader().setKTX2Loader(ktx2).setMeshoptDecoder(MeshoptDecoder);
     let proxyFace;
     loader.load(assetUrl('./facecap.glb'), gltf => {
+      if (face) return;
       proxyFace = gltf.scene;
       proxyFace.scale.multiplyScalar(.92);
       proxyFace.position.y = .1;
@@ -721,11 +722,9 @@
           face.position.set(0, 0, 0);
           scene.environmentIntensity = .65;
           renderer.toneMappingExposure = .8;
+          face.updateMatrixWorld(true);
+          const bindInverse = face.matrixWorld.clone().invert();
           face.traverse(node => {
-            if (node.isMesh && node.material.name === 'Mouth interior') {
-              node.visible = false;
-              return;
-            }
             if (node.isMesh && ['Dark brown hair', 'Portrait dark hair strands'].includes(node.material.name)) {
               const name = node.material.name;
               const map = node.material.map;
@@ -736,7 +735,7 @@
             }
             if (!node.isMesh) return;
             if (['Eye whites', 'Brown irises', 'Pupils'].includes(node.material.name)) {
-              node.material = eyeMaterial(node.material.name);
+              node.material = eyeMaterial(node.material.name, bindInverse.clone().multiply(node.matrixWorld));
               return;
             }
             // Preserve exported normals shared across skin/lip material borders.

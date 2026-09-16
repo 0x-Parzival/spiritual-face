@@ -2,14 +2,15 @@ import * as THREE from 'three';
 
 // One surface shader across sclera/iris/pupil primitives avoids polygon-shaped
 // pupils and color seams. Bind-pose coordinates keep the iris attached in blinks.
-export function eyeMaterial(name) {
+export function eyeMaterial(name, bindFrame = new THREE.Matrix4()) {
   const material = new THREE.MeshPhysicalMaterial({ name, color: '#ffffff',
     roughness: .28, clearcoat: .35, clearcoatRoughness: .12, specularIntensity: .65, metalness: 0 });
   material.userData.anatomicalEye = true;
   material.onBeforeCompile = shader => {
-    shader.vertexShader = 'varying vec3 eyePoint;\n' + shader.vertexShader;
+    shader.uniforms.eyeBindFrame = { value: bindFrame };
+    shader.vertexShader = 'uniform mat4 eyeBindFrame; varying vec3 eyePoint;\n' + shader.vertexShader;
     shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>',
-      '#include <begin_vertex>\neyePoint = position;');
+      '#include <begin_vertex>\neyePoint = (eyeBindFrame * vec4(position, 1.0)).xyz;');
     shader.fragmentShader = 'varying vec3 eyePoint;\n' + shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', `
       #include <color_fragment>
