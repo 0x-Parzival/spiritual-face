@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Spiritual AI — Krishna</title>
   <link rel="preload" href="./facecap.glb" as="fetch" crossorigin fetchpriority="high">
-  <link rel="preload" href="./krishna-light.glb" as="fetch" crossorigin fetchpriority="low">
+  <link rel="preload" href="./krishna-light-1024.glb" as="fetch" crossorigin fetchpriority="low">
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; overflow: hidden; background: transparent !important; }
@@ -705,7 +705,7 @@
       scene.add(proxyFace);
     });
     loader
-      .load(assetUrl(legacy ? './facecap.glb' : './krishna-light.glb'), gltf => {
+      .load(assetUrl(legacy ? './facecap.glb' : './krishna-light-1024.glb'), gltf => {
         if (proxyFace) {
           scene.remove(proxyFace);
           proxyFace = null;
