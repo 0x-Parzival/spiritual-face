@@ -9,11 +9,11 @@ root. `index.html`, the hashed model, poster, JavaScript and `_headers` are
 already publishable files. The `_headers` file gives hashed assets long browser
 cache lifetimes while HTML revalidates.
 
-Cloudflare Workers currently sends ordinary `.glb` files uncompressed. The
-matching `.glb.gz` is provided with a `Content-Encoding: gzip` rule for
-verification. Only use it in the viewer after checking that a browser receives
-decompressed GLB bytes from the live Worker. Verify `face-ready`, speech and
-poster handoff before replacing the GitHub Pages URL in consuming sites.
+Cloudflare Workers sends ordinary `.glb` files uncompressed. The viewer loads
+the matching `.glb.gz` asset (641,953 bytes) and decodes it if the browser
+receives raw gzip bytes. It falls back to the ordinary GLB if compressed loading
+is unavailable. Verify `face-ready`, speech and poster handoff before replacing
+the GitHub Pages URL in consuming sites.
 Generated files in this repository come from
 `public/spiritualai-xyz/fast/` in the Spiritual AI workspace.
 
