@@ -1,5 +1,27 @@
 # Canonical Krishna face
 
+## Cloudflare Workers deployment
+
+The current Cloudflare Workers address is
+`https://spiritual-face.keshavbruh.workers.dev/?embed=1`. Deploy this GitHub
+repository (`0x-Parzival/spiritual-face`) as static assets from the repository
+root. `index.html`, the hashed model, poster, JavaScript and `_headers` are
+already publishable files. The `_headers` file gives hashed assets long browser
+cache lifetimes while HTML revalidates.
+
+Cloudflare Workers currently sends ordinary `.glb` files uncompressed. The
+matching `.glb.gz` is provided with a `Content-Encoding: gzip` rule for
+verification. Only use it in the viewer after checking that a browser receives
+decompressed GLB bytes from the live Worker. Verify `face-ready`, speech and
+poster handoff before replacing the GitHub Pages URL in consuming sites.
+Generated files in this repository come from
+`public/spiritualai-xyz/fast/` in the Spiritual AI workspace.
+
+The current model is 829,892 bytes and retains all 53 facial controls. The
+startup WebP poster remains visible until the 3D frame is ready.
+
+## Historical source notes
+
 This folder is the single source of truth. Deploy this repo, then embed the
 deployed viewer URL everywhere. Do not copy the folder if you want updates to
 propagate automatically: copied files become independent snapshots.
