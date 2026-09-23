@@ -11,6 +11,8 @@
   Cache-Control: public, max-age=31536000, immutable
 /krishna-paint-fallback-*
   Cache-Control: public, max-age=31536000, immutable
+/instant-*
+  Cache-Control: public, max-age=31536000, immutable
 /viewer-*
   Cache-Control: public, max-age=31536000, immutable
 /chunk-*
