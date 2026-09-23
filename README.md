@@ -10,14 +10,14 @@ already publishable files. The `_headers` file gives hashed assets long browser
 cache lifetimes while HTML revalidates.
 
 Cloudflare Workers sends ordinary `.glb` files uncompressed. The viewer loads
-the matching `.glb.gz` asset (641,953 bytes) and decodes it if the browser
+the matching `.glb.gz` asset (498,605 bytes) and decodes it if the browser
 receives raw gzip bytes. It falls back to the ordinary GLB if compressed loading
 is unavailable. Verify `face-ready`, speech and poster handoff before replacing
 the GitHub Pages URL in consuming sites.
 Generated files in this repository come from
 `public/spiritualai-xyz/fast/` in the Spiritual AI workspace.
 
-The current model is 829,892 bytes and retains all 53 facial controls. The
+The current unpacked model is 655,692 bytes and retains all 53 facial controls. The
 startup WebP poster remains visible until the 3D frame is ready.
 
 ## Historical source notes
