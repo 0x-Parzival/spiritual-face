@@ -6,6 +6,7 @@ export function connectKrishna(frame) {
   let text = '', audio, interval, analyser, context, samples, startAt = 0, connecting = false, unbind = () => {};
 
   const start = value => { text = String(value || ''); send('face-animate', { text }); };
+  const state = value => send('face-state', { state: String(value || 'idle') });
   const level = (value, elapsed, duration) => send('face-audio-level', {
     level: String(Math.max(0, Math.min(1, Number(value) || 0))), elapsed, duration,
   });
@@ -91,5 +92,5 @@ export function connectKrishna(frame) {
     };
     return unbind;
   }
-  return { start, level, stop, bind, bindUtterance, dispose() { unbind(); frame.removeEventListener('load', onLoad); } };
+  return { start, state, level, stop, bind, bindUtterance, dispose() { unbind(); frame.removeEventListener('load', onLoad); } };
 }
