@@ -50,11 +50,21 @@
         image.src = src;
         return [name, image];
       }));
-      let text = '', speechStarted = 0, lastLevelAt = 0, active = false;
+      const cueSources = { laugh: './instant-laugh-0567a64fb785.webp', chuckle: './instant-chuckle-724000aa9aeb.webp', sigh: './instant-sigh-149c5acf5f99.webp' };
+      let text = '', speechStarted = 0, lastLevelAt = 0, active = false, cue = '', cueTimer;
       const show = pose => {
         const image = frames[pose];
         const src = image?.complete && image.naturalWidth ? image.src : neutral;
         if (poster.src !== src) poster.src = src;
+      };
+      const showCue = name => {
+        if (!frames[name]) {
+          const image = frames[name] = new Image();
+          image.fetchPriority = 'high';
+          image.onload = () => { if (cue === name) show(name); };
+          image.src = cueSources[name];
+        }
+        show(name);
       };
       addEventListener('message', event => {
         if (event.source !== window.parent || !event.data) return;
@@ -62,9 +72,17 @@
         if (message.type === 'face-animate') {
           text = String(message.text || '').replace(/[^a-z]/gi, '').toLowerCase();
           speechStarted = performance.now(); active = true;
+          clearTimeout(cueTimer);
+          cue = !poster.hidden && String(message.text || '').match(/<(laugh|chuckle|sigh)>/i)?.[1].toLowerCase() || '';
+          if (cue) {
+            const name = cue;
+            showCue(name);
+            cueTimer = setTimeout(() => { if (cue === name) { cue = ''; show(); } }, name === 'chuckle' ? 1200 : 2100);
+          }
         } else if (message.type === 'face-audio-level') {
           const level = Math.max(0, Math.min(1, Number(message.level) || 0));
           lastLevelAt = performance.now();
+          if (cue) { showCue(cue); return; }
           if (level > .025) {
             const elapsed = Number.isFinite(Number(message.elapsed)) ? Number(message.elapsed) : (lastLevelAt - speechStarted) / 1000;
             const index = text.length ? Math.min(text.length - 1, Math.max(0, Math.floor(
@@ -75,7 +93,7 @@
             active = true;
           } else show();
         } else if (message.type === 'face-stop') {
-          show(); active = false; speechStarted = 0;
+          clearTimeout(cueTimer); cue = ''; show(); active = false; speechStarted = 0;
         }
       });
       setInterval(() => {
@@ -88,6 +106,6 @@
       };
     })();
   </script>
-  <script type="module" src="./viewer-QKM2CBCE.js"></script>
+  <script type="module" src="./viewer-OGZCLT24.js"></script>
 </body>
 </html>
