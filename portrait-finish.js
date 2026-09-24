@@ -16,6 +16,11 @@ export function portraitFinish(mesh, bindFrame) {
     float front = smoothstep(.15, .19, finishPoint.z);
     diffuseColor.rgb *= 1.0 - front * (.18 * upper + .04 * lower);
     diffuseColor.rgb = mix(diffuseColor.rgb, vec3(.77, .49, .59), front * (lower * .06 + waterline * .26));
+    // Warm ivory belongs to the surrounding lid skin; the eyeball has its own mesh/material.
+    float lidX = (abs(finishPoint.x) - .073) / .052;
+    float lidY = (finishPoint.y - .006) / .034;
+    float lidIvory = exp(-pow(lidX, 4.0) - pow(lidY, 4.0));
+    diffuseColor.rgb = mix(diffuseColor.rgb, vec3(.98, .88, .70), front * lidIvory * .72);
     float noseSide = exp(-pow((abs(finishPoint.x) - .017) / .009, 2.0))
       * exp(-pow((finishPoint.y + .055) / .032, 2.0));
     diffuseColor.rgb *= 1.0 - front * noseSide * .075;
@@ -63,17 +68,25 @@ export function portraitFinish(mesh, bindFrame) {
         point.fromBufferAttribute(position, i).applyMatrix4(bindFrame);
         group.ids.push(i); group.low = Math.min(group.low, point.y); group.high = Math.max(group.high, point.y); group.x += point.x;
       }
+      const lashInverse = bindFrame.clone().invert();
       [...groups.values()].sort((a, b) => a.x / a.ids.length - b.x / b.ids.length).forEach((group, order) => {
         for (const i of group.ids) {
           point.fromBufferAttribute(position, i).applyMatrix4(bindFrame);
           trim[i] = group.ids.length < 500 && order % 2 ? 2 : (point.y - group.low) / Math.max(.0001, group.high - group.low);
+          if (group.ids.length < 500) {
+            const rootX = group.x / group.ids.length;
+            point.y = group.low + (point.y - group.low) * 1.35;
+            point.x = rootX + (point.x - rootX) * 1.35;
+            point.applyMatrix4(lashInverse);
+            position.setXYZ(i, point.x, point.y, point.z);
+          }
         }
       });
     }
     geometry.setAttribute('lashTrim', new THREE.BufferAttribute(trim, 1));
     color = `
       float corner = smoothstep(.023, .031, abs(abs(finishPoint.x) - .074));
-      if (finishLashTrim > .72 || corner > .98) discard;
+      if (finishLashTrim > .94 || corner > .995) discard;
       diffuseColor.rgb = mix(vec3(.026, .019, .015), vec3(.62, .71, .88), corner);`;
   } else return;
 
