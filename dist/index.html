@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spiritual AI — Krishna</title>
+  <link rel="preload" href="./krishna-poster-1ef1d4a7b1e8.webp" as="image" fetchpriority="high">
+  <link rel="preload" href="./krishna-fast-3f6c6ed9e631.glb.gz" as="fetch" crossorigin fetchpriority="high">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; overflow: hidden; background: transparent !important; }
+    body { color: #888; font: 13px Arial, sans-serif; }
+    body.embed #depth, body.embed #emotions, body.embed #speech, body.embed #info { display: none; }
+    canvas { display: block; }
+    #poster { position: fixed; z-index: 1; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; pointer-events: none; transition: opacity 250ms ease; }
+    #load-error { position: fixed; bottom: 16px; width: 100%; text-align: center; color: #fff; text-shadow: 0 1px 4px #000; font: 14px Arial, sans-serif; }
+    #depth { position: fixed; right: 18px; bottom: 18px; z-index: 1; width: 230px; padding: 12px; background: #242424cc; border: 1px solid #555; color: #888; }
+    #depth input { display: block; width: 100%; accent-color: #888; }
+    #emotions { position: fixed; top: 80px; right: 18px; z-index: 1; display: grid; gap: 6px; width: 120px; max-height: calc(100vh - 190px); overflow-y: auto; }
+    #emotions button { padding: 8px; border: 1px solid #555; background: #242424cc; color: #bbb; cursor: pointer; }
+    #emotions button[aria-pressed="true"] { border-color: #bbb; color: #fff; }
+    #speech { position: fixed; left: 18px; bottom: 18px; z-index: 1; width: 280px; display: grid; gap: 8px; padding: 12px; background: #242424cc; border: 1px solid #555; }
+    #speech textarea { min-height: 76px; resize: vertical; padding: 8px; border: 1px solid #555; background: #484848; color: #fff; font: inherit; }
+    #speech button { padding: 8px; border: 1px solid #666; background: #484848; color: #fff; cursor: pointer; }
+    #voice-audio { width: 100%; height: 30px; }
+    #voice { color: #aaa; font-size: 11px; }
+    #info { position: fixed; z-index: 1; top: 10px; width: 100%; text-align: center; line-height: 1.55; pointer-events: none; }
+    a { color: #fff; pointer-events: auto; }
+  </style>
+  <link rel="modulepreload" href="./chunk-LIEFTIEN.js">
+  <link rel="modulepreload" href="./chunk-FQSLMVKZ.js">
+</head>
+<body class="embed">
+  <img id="poster" src="./krishna-poster-1ef1d4a7b1e8.webp" alt="Krishna" fetchpriority="high">
+  <div id="load-error" role="status" hidden></div>
+  <div id="info">Krishna · Spiritual AI</div>
+  <div id="emotions" aria-label="Facial emotions"><button aria-pressed="true">Neutral</button><button>Happy</button><button>Sad</button><button>Angry</button><button>Surprised</button><button>Fearful</button><button>Disgusted</button><button>Contempt</button><button>Confused</button><button>Sleepy</button><button>Skeptical</button><button>Pained</button><button>Shy</button><button>Pensive</button><button>Excited</button></div>
+  <section id="speech"><textarea aria-label="Text to speak">Hello. I can speak with animated expressions.</textarea><div><button id="speak">Speak</button> <button id="stop">Stop</button></div><audio id="voice-audio" controls></audio><span id="voice">Loading device voice…</span></section>
+  <label id="depth">FACE DEPTH <input type="range" min="0" max="100" step="1" value="30" aria-label="Face depth"></label>
+  <script>if (new URLSearchParams(location.search).has('embed')) document.body.classList.add('embed');</script>
+  <script>
+    (() => {
+      const poster = document.querySelector('#poster');
+      const neutral = poster.src;
+      const frames = Object.fromEntries(Object.entries({
+        a: './instant-a-921761c45d1b.webp', o: './instant-o-dbe94dd7cf70.webp', e: './instant-e-ac782d573009.webp', blink: './instant-blink-381695369469.webp'
+      }).map(([name, src]) => {
+        const image = new Image();
+        image.fetchPriority = 'low';
+        image.src = src;
+        return [name, image];
+      }));
+      let text = '', speechStarted = 0, lastLevelAt = 0, active = false;
+      const show = pose => {
+        const image = frames[pose];
+        const src = image?.complete && image.naturalWidth ? image.src : neutral;
+        if (poster.src !== src) poster.src = src;
+      };
+      addEventListener('message', event => {
+        if (event.source !== window.parent || !event.data) return;
+        const message = event.data;
+        if (message.type === 'face-animate') {
+          text = String(message.text || '').replace(/[^a-z]/gi, '').toLowerCase();
+          speechStarted = performance.now(); active = true;
+        } else if (message.type === 'face-audio-level') {
+          const level = Math.max(0, Math.min(1, Number(message.level) || 0));
+          lastLevelAt = performance.now();
+          if (level > .025) {
+            const elapsed = Number.isFinite(Number(message.elapsed)) ? Number(message.elapsed) : (lastLevelAt - speechStarted) / 1000;
+            const index = text.length ? Math.min(text.length - 1, Math.max(0, Math.floor(
+              Number(message.duration) > 0 ? elapsed / Number(message.duration) * text.length : elapsed * 8))) : 0;
+            const sound = text[index] || 'a';
+            const pose = /[ou]/.test(sound) ? 'o' : /[ei]/.test(sound) ? 'e' : /[bmp]/.test(sound) ? '' : 'a';
+            show(pose);
+            active = true;
+          } else show();
+        } else if (message.type === 'face-stop') {
+          show(); active = false; speechStarted = 0;
+        }
+      });
+      setInterval(() => {
+        if (poster.hidden || active) return;
+        show('blink');
+        setTimeout(() => { if (!active) show(); }, 130);
+      }, 3300);
+      window.instantAvatar = {
+        get speaking() { return active && performance.now() - Math.max(lastLevelAt, speechStarted) < 30000; },
+      };
+    })();
+  </script>
+  <script type="module" src="./viewer-YRXX5LNC.js"></script>
+</body>
+</html>
