@@ -10,7 +10,7 @@ already publishable files. The `_headers` file gives hashed assets long browser
 cache lifetimes while HTML revalidates.
 
 Cloudflare Workers sends ordinary `.glb` files uncompressed. The viewer loads
-the matching `.glb.gz` asset (447,769 bytes) and decodes it if the browser
+the matching `.glb.gz` asset (448,247 bytes) and decodes it if the browser
 receives raw gzip bytes. It falls back to the ordinary GLB if compressed loading
 is unavailable. Verify `face-ready`, speech and poster handoff before replacing
 the GitHub Pages URL in consuming sites.
@@ -22,6 +22,11 @@ and 11 unused names retained for compatibility. The roughly 43 KB startup
 WebP poster appears first. Four matching full-face WebP frames
 provide early speech mouth shapes and blinking while 3D loads; the first rendered
 3D frame then takes over.
+
+The pale blue skin is shaded with the existing ambient and directional lights
+to distinguish the eyes, jaw and neck. Hair uses softer charcoal highlights.
+These appearance changes add no geometry, textures, lights or render passes;
+the model bytes are unchanged and the matching loading images total 204,018 bytes.
 
 ## AI and TTS on any website
 
