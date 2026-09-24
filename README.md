@@ -44,6 +44,8 @@ blob, or CORS-enabled media. For any other audio system, call
 `avatar.start(text)`, `avatar.level(normalizedVolume, elapsed, duration)` during
 playback, then `avatar.stop()`. Playback without readable audio samples uses
 timed text lip shapes; exact phoneme sync needs TTS phoneme timestamps.
+For browser speech synthesis, call `avatar.bindUtterance(utterance)` before
+`speechSynthesis.speak(utterance)`; the adapter follows start and end events.
 
 ## Historical source notes
 

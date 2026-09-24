@@ -71,5 +71,25 @@ export function connectKrishna(frame) {
     if (!element.paused) void playing();
     return unbind;
   }
-  return { start, level, stop, bind, dispose() { unbind(); frame.removeEventListener('load', onLoad); } };
+  function bindUtterance(utterance) {
+    if (!(utterance instanceof SpeechSynthesisUtterance)) throw new TypeError('Pass a speech synthesis utterance');
+    unbind();
+    const speaking = () => {
+      start(utterance.text);
+      const began = performance.now();
+      clearInterval(interval);
+      interval = setInterval(() => level(.45, (performance.now() - began) / 1000), 32);
+    };
+    utterance.addEventListener('start', speaking);
+    utterance.addEventListener('end', stop);
+    utterance.addEventListener('error', stop);
+    unbind = () => {
+      utterance.removeEventListener('start', speaking);
+      utterance.removeEventListener('end', stop);
+      utterance.removeEventListener('error', stop);
+      stop();
+    };
+    return unbind;
+  }
+  return { start, level, stop, bind, bindUtterance, dispose() { unbind(); frame.removeEventListener('load', onLoad); } };
 }
