@@ -17,6 +17,8 @@
   Cache-Control: public, max-age=31536000, immutable
 /chunk-*
   Cache-Control: public, max-age=31536000, immutable
+/embed.mjs
+  Cache-Control: public, max-age=0, must-revalidate
 /*.glb.gz
   Content-Type: model/gltf-binary
   Content-Encoding: gzip

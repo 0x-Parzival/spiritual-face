@@ -10,17 +10,40 @@ already publishable files. The `_headers` file gives hashed assets long browser
 cache lifetimes while HTML revalidates.
 
 Cloudflare Workers sends ordinary `.glb` files uncompressed. The viewer loads
-the matching `.glb.gz` asset (498,049 bytes) and decodes it if the browser
+the matching `.glb.gz` asset (447,769 bytes) and decodes it if the browser
 receives raw gzip bytes. It falls back to the ordinary GLB if compressed loading
 is unavailable. Verify `face-ready`, speech and poster handoff before replacing
 the GitHub Pages URL in consuming sites.
 Generated files in this repository come from
 `public/spiritualai-xyz/fast/` in the Spiritual AI workspace.
 
-The current unpacked model is 655,048 bytes and retains all 53 facial controls.
-The 53 KB startup WebP poster appears first. Four matching full-face WebP frames
+The current unpacked model is 585,856 bytes, with 42 active facial controls
+and 11 unused names retained for compatibility. The roughly 43 KB startup
+WebP poster appears first. Four matching full-face WebP frames
 provide early speech mouth shapes and blinking while 3D loads; the first rendered
 3D frame then takes over.
+
+## AI and TTS on any website
+
+Embed `https://spiritual-face.keshavbruh.workers.dev/?embed=1` in an iframe,
+then import `connectKrishna` from
+`https://spiritual-face.keshavbruh.workers.dev/embed.mjs` on the parent website:
+
+```js
+const audio = document.querySelector('#voice');
+const avatar = connectKrishna(document.querySelector('#krishna'));
+avatar.bind(audio);
+avatar.start(replyFromYourLLM);
+audio.src = ttsUrlFromYourServer;
+await audio.play();
+```
+
+The host retains its own LLM, TTS, and API keys. The adapter sends text and
+audio playback timing to the avatar; it samples amplitude from same-origin,
+blob, or CORS-enabled media. For any other audio system, call
+`avatar.start(text)`, `avatar.level(normalizedVolume, elapsed, duration)` during
+playback, then `avatar.stop()`. Playback without readable audio samples uses
+timed text lip shapes; exact phoneme sync needs TTS phoneme timestamps.
 
 ## Historical source notes
 
