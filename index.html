@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Spiritual AI — Krishna</title>
-  <link rel="preload" href="./krishna-poster-911bd3a5399d.webp" as="image" fetchpriority="high">
-  <link rel="preload" href="./krishna-fast-3f6c6ed9e631.glb.gz" as="fetch" crossorigin fetchpriority="high">
+  <link rel="preload" href="./krishna-poster-00198705bf1c.webp" as="image" fetchpriority="high">
+  <link rel="preload" href="./krishna-fast-7753cb3f0865.glb.gz" as="fetch" crossorigin fetchpriority="high">
   <style>
     * { box-sizing: border-box; }
-    html, body { margin: 0; overflow: hidden; background: transparent !important; }
+    html, body { margin: 0; overflow: hidden; background: #f7f8f5 !important; }
     body { color: #888; font: 13px Arial, sans-serif; }
     body.embed #depth, body.embed #emotions, body.embed #speech, body.embed #info { display: none; }
     canvas { display: block; }
@@ -31,7 +31,7 @@
   <link rel="modulepreload" href="./chunk-FQSLMVKZ.js">
 </head>
 <body class="embed">
-  <img id="poster" src="./krishna-poster-911bd3a5399d.webp" alt="Krishna" fetchpriority="high">
+  <img id="poster" src="./krishna-poster-00198705bf1c.webp" alt="Krishna" fetchpriority="high">
   <div id="load-error" role="status" hidden></div>
   <div id="info">Krishna · Spiritual AI</div>
   <div id="emotions" aria-label="Facial emotions"><button aria-pressed="true">Neutral</button><button>Happy</button><button>Sad</button><button>Angry</button><button>Surprised</button><button>Fearful</button><button>Disgusted</button><button>Contempt</button><button>Confused</button><button>Sleepy</button><button>Skeptical</button><button>Pained</button><button>Shy</button><button>Pensive</button><button>Excited</button></div>
@@ -43,14 +43,14 @@
       const poster = document.querySelector('#poster');
       const neutral = poster.src;
       const frames = Object.fromEntries(Object.entries({
-        a: './instant-a-eec4c56a04f4.webp', o: './instant-o-b7b729a8f49e.webp', e: './instant-e-16f579eccbc2.webp', blink: './instant-blink-980704d7d9b9.webp'
+        a: './instant-a-496e86217c4c.webp', o: './instant-o-0db7db298b99.webp', e: './instant-e-d71a1e7266fa.webp', blink: './instant-blink-306bba3143e0.webp'
       }).map(([name, src]) => {
         const image = new Image();
         image.fetchPriority = 'low';
         image.src = src;
         return [name, image];
       }));
-      const cueSources = { laugh: './instant-laugh-c57b2c9a0be0.webp', chuckle: './instant-chuckle-edc6955739d9.webp', sigh: './instant-sigh-bd0d029a96e5.webp' };
+      const cueSources = { laugh: './instant-laugh-4de386a3dae1.webp', chuckle: './instant-chuckle-0b0195e01d85.webp', sigh: './instant-sigh-436ec4204bd0.webp' };
       let text = '', speechStarted = 0, lastLevelAt = 0, active = false, cue = '', cueTimer;
       const show = pose => {
         const image = frames[pose];
@@ -106,6 +106,6 @@
       };
     })();
   </script>
-  <script type="module" src="./viewer-TOZSCHEE.js"></script>
+  <script type="module" src="./viewer-VOMJRICB.js"></script>
 </body>
 </html>
