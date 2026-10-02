@@ -1,11 +1,12 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <base href="../">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Spiritual AI — Krishna</title>
-  <link rel="preload" href="./krishna-poster-581739f6eeb3.webp" as="image" fetchpriority="high">
-  <link rel="preload" href="./krishna-fast-3f6c6ed9e631.glb.gz" as="fetch" crossorigin fetchpriority="high">
+  <link rel="preload" href="./krishna-poster-f3c579f670a2.webp" as="image" fetchpriority="high">
+  <link rel="preload" href="./krishna-fast-b2a378905367.glb.gz" as="fetch" crossorigin fetchpriority="high">
   <style>
     * { box-sizing: border-box; }
     html, body { margin: 0; overflow: hidden; background: transparent !important; }
@@ -31,81 +32,14 @@
   <link rel="modulepreload" href="./chunk-FQSLMVKZ.js">
 </head>
 <body class="embed">
-  <img id="poster" src="./krishna-poster-581739f6eeb3.webp" alt="Krishna" fetchpriority="high">
+  <img id="poster" src="./krishna-poster-f3c579f670a2.webp" alt="Krishna" fetchpriority="high">
   <div id="load-error" role="status" hidden></div>
   <div id="info">Krishna · Spiritual AI</div>
   <div id="emotions" aria-label="Facial emotions"><button aria-pressed="true">Neutral</button><button>Happy</button><button>Sad</button><button>Angry</button><button>Surprised</button><button>Fearful</button><button>Disgusted</button><button>Contempt</button><button>Confused</button><button>Sleepy</button><button>Skeptical</button><button>Pained</button><button>Shy</button><button>Pensive</button><button>Excited</button></div>
   <section id="speech"><textarea aria-label="Text to speak">Hello. I can speak with animated expressions.</textarea><div><button id="speak">Speak</button> <button id="stop">Stop</button></div><audio id="voice-audio" controls></audio><span id="voice">Loading device voice…</span></section>
   <label id="depth">FACE DEPTH <input type="range" min="0" max="100" step="1" value="30" aria-label="Face depth"></label>
   <script>if (new URLSearchParams(location.search).has('embed')) document.body.classList.add('embed');</script>
-  <script>
-    (() => {
-      const poster = document.querySelector('#poster');
-      const neutral = poster.src;
-      const frames = Object.fromEntries(Object.entries({
-        a: './instant-a-8158ea9a10b5.webp', o: './instant-o-b1e222e4be2c.webp', e: './instant-e-c3a820690c64.webp', blink: './instant-blink-05c754c46f21.webp'
-      }).map(([name, src]) => {
-        const image = new Image();
-        image.fetchPriority = 'low';
-        image.src = src;
-        return [name, image];
-      }));
-      const cueSources = { laugh: './instant-laugh-d875c6c1114e.webp', chuckle: './instant-chuckle-3b5b999942a3.webp', sigh: './instant-sigh-0a7f5f7bb7b4.webp' };
-      let text = '', speechStarted = 0, lastLevelAt = 0, active = false, cue = '', cueTimer;
-      const show = pose => {
-        const image = frames[pose];
-        const src = image?.complete && image.naturalWidth ? image.src : neutral;
-        if (poster.src !== src) poster.src = src;
-      };
-      const showCue = name => {
-        if (!frames[name]) {
-          const image = frames[name] = new Image();
-          image.fetchPriority = 'high';
-          image.onload = () => { if (cue === name) show(name); };
-          image.src = cueSources[name];
-        }
-        show(name);
-      };
-      addEventListener('message', event => {
-        if (event.source !== window.parent || !event.data) return;
-        const message = event.data;
-        if (message.type === 'face-animate') {
-          text = String(message.text || '').replace(/[^a-z]/gi, '').toLowerCase();
-          speechStarted = performance.now(); active = true;
-          clearTimeout(cueTimer);
-          cue = !poster.hidden && String(message.text || '').match(/<(laugh|chuckle|sigh)>/i)?.[1].toLowerCase() || '';
-          if (cue) {
-            const name = cue;
-            showCue(name);
-            cueTimer = setTimeout(() => { if (cue === name) { cue = ''; show(); } }, name === 'chuckle' ? 1200 : 2100);
-          }
-        } else if (message.type === 'face-audio-level') {
-          const level = Math.max(0, Math.min(1, Number(message.level) || 0));
-          lastLevelAt = performance.now();
-          if (cue) { showCue(cue); return; }
-          if (level > .025) {
-            const elapsed = Number.isFinite(Number(message.elapsed)) ? Number(message.elapsed) : (lastLevelAt - speechStarted) / 1000;
-            const index = text.length ? Math.min(text.length - 1, Math.max(0, Math.floor(
-              Number(message.duration) > 0 ? elapsed / Number(message.duration) * text.length : elapsed * 8))) : 0;
-            const sound = text[index] || 'a';
-            const pose = /[ou]/.test(sound) ? 'o' : /[ei]/.test(sound) ? 'e' : /[bmp]/.test(sound) ? '' : 'a';
-            show(pose);
-            active = true;
-          } else show();
-        } else if (message.type === 'face-stop') {
-          clearTimeout(cueTimer); cue = ''; show(); active = false; speechStarted = 0;
-        }
-      });
-      setInterval(() => {
-        if (poster.hidden || active) return;
-        show('blink');
-        setTimeout(() => { if (!active) show(); }, 130);
-      }, 3300);
-      window.instantAvatar = {
-        get speaking() { return active && performance.now() - Math.max(lastLevelAt, speechStarted) < 30000; },
-      };
-    })();
-  </script>
-  <script type="module" src="./viewer-AURTUPB2.js"></script>
+
+  <script type="module" src="./viewer-eye-reference-41a690c51b2a.js"></script>
 </body>
 </html>
